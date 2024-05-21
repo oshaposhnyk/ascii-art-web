@@ -20,12 +20,10 @@
       <form action="/ascii" method="post">
         <div class="form-group">
           <label for="text">Text</label>
-          <textarea class="form-control" id="text" rows="4" name="text">{{.Text}}</textarea>
+          <input type="text" class="form-control" id="text"name="text" value="{{.Text}}"></input>
         </div>
         {{if .Result}}
-          <pre>
-            {{.Result}}
-          </pre>
+          <pre>{{.Result}}</pre>
         {{end}}
         <div class="form-group mt-2">
           <label for="template">Template</label>
