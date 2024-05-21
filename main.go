@@ -3,9 +3,9 @@ package main
 import (
 	"flag"
 	"fmt"
-	"net/http"
 	"os"
-	"time"
+
+	"github.com/gin-gonic/gin"
 )
 
 func main() {
@@ -13,14 +13,11 @@ func main() {
 	port := flag.Int("p", 8080, "Server port")
 	flag.Parse()
 
-	s := &http.Server{
-		Addr:         fmt.Sprintf("%s:%d", *host, *port),
-		Handler:      newMux(),
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 10 * time.Second,
-	}
-
-	if err := s.ListenAndServe(); err != nil {
+	r := gin.Default()
+	r.GET("/", rootHandler)
+	r.POST("/ascii", convertStringHandler)
+	err := r.Run(fmt.Sprintf("%s:%d", *host, *port))
+	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}

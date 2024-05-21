@@ -1,12 +1,55 @@
 package main
 
-import "net/http"
+import (
+	"bytes"
+	"html/template"
+	"net/http"
+	"path"
 
-func rootHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path != "/" {
-		http.NotFound(w, r)
-		return
+	"github.com/gin-gonic/gin"
+	"github.com/oshaposhnyk/ascii-art/ascii"
+)
+
+type Data struct {
+	Errors []string
+	Result string
+	Text   string
+}
+
+const (
+	ContentTypeHTML = "text/html; charset=utf-8"
+)
+
+func rootHandler(ctx *gin.Context) {
+	buf := renderTmpl(Data{}, "home.gotmpl")
+	ctx.Data(http.StatusOK, ContentTypeHTML, buf.Bytes())
+}
+
+func convertStringHandler(ctx *gin.Context) {
+	text := ctx.PostForm("text")
+	template := ctx.PostForm("template")
+	buf := &bytes.Buffer{}
+	var data Data
+
+	config := ascii.Config{Text: text, Template: template}
+	err := ascii.Run(config, buf)
+	if err != nil {
+		data.Errors = []string{err.Error()}
 	}
-	content := "Hello world"
-	replyTextContent(w, r, http.StatusOK, content)
+
+	data.Result = buf.String()
+	data.Text = text
+
+	home := renderTmpl(data, "home.gotmpl")
+
+	ctx.Data(http.StatusOK, ContentTypeHTML, home.Bytes())
+
+}
+
+func renderTmpl(dataTmpl Data, nameTmpl string) bytes.Buffer {
+	buf := &bytes.Buffer{}
+	path := path.Join("templates", nameTmpl)
+	tmpl := template.Must(template.ParseFiles(path))
+	tmpl.Execute(buf, dataTmpl)
+	return *buf
 }
