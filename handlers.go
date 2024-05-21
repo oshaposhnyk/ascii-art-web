@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"html/template"
 	"net/http"
 	"path"
@@ -40,7 +39,6 @@ func convertStringHandler(ctx *gin.Context) {
 
 	data.Result = buf.String()
 	data.Text = text
-	fmt.Println(data.Result)
 
 	home := renderTmpl(data, "home.gotmpl")
 
